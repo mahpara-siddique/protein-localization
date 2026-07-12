@@ -1,0 +1,15 @@
+# Ignore virtual environment
+venv/
+
+# Ignore data and embeddings
+data/
+
+# Ignore saved checkpoints and weights
+saved_models/
+
+# Ignore Python cache and outputs
+__pycache__/
+*.pt
+*.pkl
+*.npy
+.ipynb_checkpoints/
