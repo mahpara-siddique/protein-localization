@@ -1,5 +1,6 @@
 # MS-LANet: Multi-Scale Light Attention Network for Protein Subcellular Localization
 
+<img width="1080" height="1080" alt="graphical_abstract" src="https://github.com/user-attachments/assets/39728915-1cd5-4bda-a18d-79d4c1789163" />
 
 
 MS-LANet is a novel, high-performance deep learning model designed to predict protein subcellular localization from primary sequences using pre-trained Protein Language Model (pLM) embeddings. 
