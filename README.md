@@ -61,3 +61,19 @@ To systematically justify each design choice, we conducted a 12-configuration ab
 ├── plot_paper_figures.py          # Script to generate publication charts
 ├── LICENSE                        # Strict proprietary license
 └── README.md                      # Project documentation
+
+🚀 Reproduction Steps
+1. Extract ESM-2 Residue Tensors
+python extract_residue_embeddings.py
+
+2. Run 5-Fold Baseline Cross-Validation
+python run_baseline_cv.py
+
+3. Run Architectural Ablation Study
+python run_ablation.py
+
+4. Train Optimal 5-Fold MS-LANet v2 Model
+python train_ms_lanet_v2_cv.py
+
+5. Evaluate Final Consensus Ensemble
+python evaluate_ensemble_cv.py
