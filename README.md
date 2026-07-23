@@ -1,4 +1,4 @@
-# MS-LANet v2: Multi-Head Self-Attention Pooling and Consensus Ensemble for Protein Subcellular Localization
+# MS-LANet: Multi-Head Self-Attention Pooling and Consensus Ensemble for Protein Subcellular Localization
 
 MS-LANet v2 is a novel, high-performance deep learning model designed to predict protein subcellular localization from primary sequences using pre-trained Protein Language Model (pLM) embeddings. 
 
