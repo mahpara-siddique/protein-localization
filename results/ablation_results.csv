@@ -1,0 +1,13 @@
+Experiment,Pooling,Loss,Dropout,LayerNorm,Test_Acc,Test_MacroF1,Test_MCC
+01_mean_only,mean_only,focal,0.4,True,78.69%,0.7475,0.7473
+02_max_only,max_only,focal,0.4,True,76.04%,0.7091,0.7143
+03_mean_max,mean_max,focal,0.4,True,68.20%,0.6482,0.6258
+04_conv_pool_only,conv_pool_only,focal,0.4,True,80.69%,0.7625,0.7704
+05_conv_pool_mean,conv_pool_mean,focal,0.4,True,80.13%,0.7555,0.7633
+06_self_attn_only,self_attn_only,focal,0.4,True,79.55%,0.7491,0.7562
+07_self_attn_mean,self_attn_mean,focal,0.4,True,80.66%,0.7646,0.7688
+08_ce_loss,self_attn_mean,ce,0.4,True,80.13%,0.7583,0.7638
+09_label_smoothing,self_attn_mean,label_smoothing,0.4,True,81.57%,0.7691,0.7794
+10_dropout_0.1,self_attn_mean,focal,0.1,True,79.13%,0.7585,0.7509
+11_dropout_0.3,self_attn_mean,focal,0.3,True,79.99%,0.7650,0.7622
+12_no_layernorm,self_attn_mean,focal,0.4,False,77.90%,0.7401,0.7381

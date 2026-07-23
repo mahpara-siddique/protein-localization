@@ -1,4 +1,6 @@
-"""Script to evaluate the 5-Fold MS-LANet + SVM Ensemble on the test set."""
+"""
+Script to evaluate the 5-Fold MS-LANet v2 (True Self-Attention) + SVM Ensemble on the test set.
+"""
 import os
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 
@@ -19,7 +21,7 @@ from tqdm import tqdm
 
 from config import DEVICE, PROCESSED_DIR, FEATURES_DIR, MODELS_DIR, FIGURES_DIR
 from data_loader_residue import get_residue_loaders
-from ms_lanet import MSLANet
+from ms_lanet_v2 import MSLANetV2
 
 def load_mean_embeddings(df, embedding_dir):
     """Load residue tensors and compute mean embeddings on the fly."""
@@ -72,20 +74,27 @@ def run_cv_ensemble():
     print("Getting SVM probabilities...")
     svm_probs = svm_clf.predict_proba(X_test_mean)
     
-    # 3. Get predictions from all 5 Folds of MS-LANet
+    # 3. Get predictions from all 5 Folds of MS-LANet v2
     _, _, test_loader, _ = get_residue_loaders(batch_size=32)
     
     # We will accumulate probabilities from all 5 folds
     all_folds_probs = []
     
     for fold in range(1, 6):
-        fold_path = MODELS_DIR / f"ms_lanet_fold_{fold}.pt"
+        fold_path = MODELS_DIR / f"ms_lanet_v2_fold_{fold}.pt"
         if not fold_path.exists():
             print(f"Error: Model checkpoint for Fold {fold} not found at {fold_path}. Complete CV training first.")
             return
             
-        print(f"Inference using MS-LANet Fold {fold}...")
-        model = MSLANet(embedding_dim=1280, num_classes=10).to(DEVICE)
+        print(f"Inference using MS-LANet v2 Fold {fold}...")
+        model = MSLANetV2(
+            embedding_dim=1280, 
+            num_classes=10, 
+            pooling_strategy='self_attn_mean', 
+            dropout=0.4, 
+            use_layernorm=True
+        ).to(DEVICE)
+        
         model.load_state_dict(torch.load(fold_path, map_location=DEVICE))
         model.eval()
         
@@ -104,9 +113,9 @@ def run_cv_ensemble():
     lanet_probs = np.mean(all_folds_probs, axis=0)
     lanet_preds = lanet_probs.argmax(axis=1)
     lanet_acc = accuracy_score(y_test, lanet_preds)
-    print(f"\n5-Fold MS-LANet Ensemble Test Accuracy alone: {lanet_acc * 100:.2f}%")
+    print(f"\n5-Fold MS-LANet v2 (Self-Attention) Ensemble Test Accuracy alone: {lanet_acc * 100:.2f}%")
     
-    # 5. Combine averaged MS-LANet predictions with the SVM predictions
+    # 5. Combine averaged MS-LANet v2 predictions with the SVM predictions
     print("\nSweeping weights for combined CV Ensemble...")
     best_w = 0.5
     best_acc = 0.0
@@ -116,7 +125,7 @@ def run_cv_ensemble():
         ensemble_probs = w * lanet_probs + (1 - w) * svm_probs
         ensemble_preds = ensemble_probs.argmax(axis=1)
         acc = accuracy_score(y_test, ensemble_preds)
-        print(f"  Weight w={w:.1f} (5-Fold LANet) / {1-w:.1f} (SVM) | Accuracy: {acc*100:.2f}%")
+        print(f"  Weight w={w:.1f} (5-Fold LANet v2) / {1-w:.1f} (SVM) | Accuracy: {acc*100:.2f}%")
         
         if acc > best_acc:
             best_acc = acc
@@ -127,7 +136,7 @@ def run_cv_ensemble():
     
     # 6. Output Final Results
     print("\n" + "="*60)
-    print(f"🏆 FINAL 5-FOLD CV ENSEMBLE RESULTS (Weight: LANet={best_w:.1f} / SVM={1-best_w:.1f})")
+    print(f"🏆 FINAL 5-FOLD MS-LANET V2 ENSEMBLE RESULTS (Weight: LANet={best_w:.1f} / SVM={1-best_w:.1f})")
     print("="*60)
     print(f"Accuracy (Q10):  {best_acc * 100:.2f}%")
     print(f"Matthews Corr:   {best_mcc:.4f}")
@@ -145,13 +154,13 @@ def run_cv_ensemble():
         cm_normalized, annot=True, fmt=".2f", cmap="Blues",
         xticklabels=class_names, yticklabels=class_names
     )
-    plt.title("5-Fold CV Ensemble Normalized Confusion Matrix")
+    plt.title("5-Fold MS-LANet v2 Ensemble Normalized Confusion Matrix")
     plt.xlabel("Predicted Label")
     plt.ylabel("True Label")
     plt.tight_layout()
     
     FIGURES_DIR.mkdir(parents=True, exist_ok=True)
-    matrix_path = FIGURES_DIR / "ms_lanet_cv_ensemble_confusion.png"
+    matrix_path = FIGURES_DIR / "ms_lanet_v2_cv_ensemble_confusion.png"
     plt.savefig(matrix_path, dpi=300)
     print(f"Ensemble confusion matrix saved to: {matrix_path}")
 
